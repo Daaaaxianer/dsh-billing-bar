@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Billing phase bar">
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#0f172a"/>
+  <rect x="12" y="22" width="30" height="8" rx="4" fill="#22d3ee"/>
+  <rect x="12" y="34" width="16" height="8" rx="4" fill="#f59e0b"/>
+  <circle cx="47" cy="40" r="7" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+  <path d="M44 40h6M47 36.5v7" stroke="#e2e8f0" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

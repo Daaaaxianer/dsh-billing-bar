@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Billing phase bar",
+    "description": "Shows the peak or off-peak billing phase and the account balance above the composer, with today's spend per model on hover."
+  }
+}
