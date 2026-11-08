@@ -449,30 +449,41 @@ function createCache(ctx) {
 
 // ── plugin ──────────────────────────────────────────────────────────────────
 
+/**
+ * Registers the status route once the web carrier exists.
+ *
+ * At boot the carrier is not necessarily available when this row is applied.
+ * Reading `ctx.get('webServer')` once and giving up there leaves the plugin
+ * alive but routeless until someone toggles it — the "shows nothing until I
+ * switch it off and on" symptom. `ctx.inject` instead applies this half as soon
+ * as the service is there, and re-applies it if the carrier restarts.
+ */
 export function apply(ctx) {
   const snapshot = createCache(ctx)
-  const web = ctx.get('webServer')
-  if (!web) return
-  ctx.effect(() =>
-    web.register({
-      kind: 'exact',
-      path: ROUTE,
-      resource: async request => {
-        let body
-        try {
-          const range = new URL(request.url).searchParams.get('range') ?? 'today'
-          body = JSON.stringify(await snapshot(range))
-        } catch (error) {
-          body = JSON.stringify({ error: String(error?.message ?? error) })
-        }
-        return new Response(body, {
-          status: 200,
-          headers: {
-            'content-type': 'application/json; charset=utf-8',
-            'cache-control': 'no-store'
+  ctx.inject(['webServer'], hostCtx => {
+    hostCtx.effect(() =>
+      hostCtx.webServer.register({
+        kind: 'exact',
+        path: ROUTE,
+        resource: async request => {
+          let body
+          try {
+            const range = new URL(request.url).searchParams.get('range') ?? 'today'
+            body = JSON.stringify(await snapshot(range))
+          } catch (error) {
+            body = JSON.stringify({ error: String(error?.message ?? error) })
           }
-        })
-      }
-    })
-  )
+          return new Response(body, {
+            status: 200,
+            headers: {
+              'content-type': 'application/json; charset=utf-8',
+              'cache-control': 'no-store'
+            }
+          })
+        }
+      })
+    )
+    // Warm the snapshot so the first Client request does not wait for the scan.
+    void snapshot('today').catch(() => {})
+  })
 }

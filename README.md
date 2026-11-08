@@ -23,6 +23,10 @@ the last 7 days' and the last 30 days' spend per model.
 - **Click to pin.** Pressing the balance (or anywhere in the panel) keeps the panel
   open while you read it; a second press on the balance, a press outside, or Escape
   closes it. Moving the mouse away no longer dismisses it.
+- **Follows the client theme.** Every surface, border, label and shadow comes from
+  the harness `--dsw-alias-*` tokens, so the strip and the panel switch with the
+  Settings → Appearance choice (light / dark), with no plugin-specific palette to
+  keep in sync.
 - **充值余额 is a link** to the official DeepSeek top-up page, taken from the account
   service rather than hard-coded.
 

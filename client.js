@@ -78,7 +78,7 @@ window.__ModuleLoader__.load({
 .dbb-bar{display:inline-flex;align-items:center;gap:7px;height:22px;padding:0 9px 0 8px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);cursor:default;transition:border-color .15s ease}
 .dbb-bar:hover,.dbb-bar:focus-visible,.dbb-balance:hover,.dbb-balance:focus-visible{border-color:var(--dsw-alias-border-l2);outline:none}
 .dbb-label{font-size:11px;color:var(--dsw-alias-label-primary);letter-spacing:.02em;white-space:nowrap}
-.dbb-strip{position:relative;display:block;width:112px;height:8px;border-radius:999px;overflow:hidden;background:var(--dsw-alias-bg-base);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.dbb-strip{position:relative;display:block;width:112px;height:8px;border-radius:999px;overflow:hidden;background:var(--dsw-alias-bg-base);box-shadow:inset 0 0 0 1px var(--dsw-alias-border-l1)}
 .dbb-now{position:absolute;top:-1px;bottom:-1px;width:2px;transform:translateX(-1px);background:var(--dsw-alias-label-primary);box-shadow:0 0 0 1px var(--dsw-alias-bg-layer-2);border-radius:1px}
 .dbb-balance{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;cursor:pointer}
 .dbb-balance[data-pinned="1"]{border-color:var(--dsw-alias-border-l2);box-shadow:inset 0 0 0 1px var(--dsw-alias-border-l2);color:var(--dsw-alias-label-primary)}
@@ -154,46 +154,75 @@ window.__ModuleLoader__.load({
       const [open, setOpen] = React.useState(null)
       const [pinned, setPinned] = React.useState(false)
       const [loading, setLoading] = React.useState(false)
-      const lastLoad = React.useRef(0)
       const closeTimer = React.useRef(null)
       const rangeRef = React.useRef('today')
       const seq = React.useRef(0)
+      const inFlight = React.useRef(false)
       const pinnedRef = React.useRef(false)
       const balanceCell = React.useRef(null)
 
-      const load = React.useCallback(async (nextRange) => {
+      /** One snapshot attempt. Resolves true when the Host answered with data. */
+      const load = React.useCallback(async nextRange => {
+        if (inFlight.current) return true
         const wanted = nextRange ?? rangeRef.current
-        const at = Date.now()
-        if (wanted === rangeRef.current && at - lastLoad.current < 3000) return
-        lastLoad.current = at
         rangeRef.current = wanted
         if (typeof fetch !== 'function') {
           setFailed(true)
-          return
+          return false
         }
         const ticket = ++seq.current
+        inFlight.current = true
         setLoading(true)
         try {
           const response = await fetch(`${STATUS_URL}?range=${encodeURIComponent(wanted)}`, { cache: 'no-store' })
           if (!response.ok) throw new Error(`HTTP ${response.status}`)
           const payload = await response.json()
-          if (ticket !== seq.current) return
-          setData(payload)
-          setFailed(false)
+          if (payload !== null && typeof payload === 'object' && payload.error) throw new Error(String(payload.error))
+          if (ticket === seq.current) {
+            setData(payload)
+            setFailed(false)
+          }
+          return true
         } catch {
           if (ticket === seq.current) setFailed(true)
+          return false
         } finally {
+          inFlight.current = false
           if (ticket === seq.current) setLoading(false)
         }
       }, [])
 
+      // Poll on a self-scheduling timer: 60 s once the Host answers, and a short
+      // 1-2-4-8-15 s backoff while it does not, so a page that loads before the
+      // Host route exists fills in within seconds instead of a full minute.
       React.useEffect(() => {
-        load('today')
-        const poll = setInterval(() => load(), POLL_MS)
+        let alive = true
+        let timer = null
+        let backoff = 1000
+        const step = async () => {
+          if (!alive) return
+          if (timer !== null) {
+            clearTimeout(timer)
+            timer = null
+          }
+          const ok = await load()
+          if (!alive) return
+          backoff = ok ? 1000 : Math.min(backoff * 2, 15000)
+          timer = setTimeout(step, ok ? POLL_MS : backoff)
+        }
+        void step()
         const tick = setInterval(() => setNow(Date.now()), 1000)
+        const onVisible = () => {
+          if (document.visibilityState !== 'visible') return
+          backoff = 1000
+          void step()
+        }
+        document.addEventListener('visibilitychange', onVisible)
         return () => {
-          clearInterval(poll)
+          alive = false
+          if (timer !== null) clearTimeout(timer)
           clearInterval(tick)
+          document.removeEventListener('visibilitychange', onVisible)
           if (closeTimer.current !== null) clearTimeout(closeTimer.current)
         }
       }, [load])
