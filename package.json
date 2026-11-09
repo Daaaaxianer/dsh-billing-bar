@@ -1,59 +1,59 @@
-﻿{
-    "name":  "dsh-billing-bar",
-    "version":  "0.1.2",
-    "description":  "Peak/off-peak billing strip and account balance above the DSH composer, with today, 7-day and 30-day spend per model.",
-    "license":  "MIT",
-    "author":  "Daaaaxianer",
-    "type":  "module",
-    "exports":  {
-                    ".":  "./index.js",
-                    "./client":  "./client.js",
-                    "./locale/*.json":  "./locale/*.json",
-                    "./icon":  "./icon.svg",
-                    "./package.json":  "./package.json"
-                },
-    "files":  [
-                  "index.js",
-                  "client.js",
-                  "cordis.patch.yml",
-                  "locale/*.json",
-                  "icon.svg",
-                  "LICENSE",
-                  "README.md"
-              ],
-    "keywords":  [
-                     "deepseek",
-                     "deepseek-harness",
-                     "dsh",
-                     "dsh-plugin",
-                     "billing",
-                     "usage",
-                     "balance",
-                     "cost",
-                     "peak",
-                     "off-peak"
-                 ],
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://github.com/Daaaaxianer/dsh-billing-bar.git"
-                   },
-    "homepage":  "https://github.com/Daaaaxianer/dsh-billing-bar#readme",
-    "bugs":  {
-                 "url":  "https://github.com/Daaaaxianer/dsh-billing-bar/issues"
-             },
-    "engines":  {
-                    "dsh":  "\u003e=0.2.0-rc.1 \u003c0.2.2 || \u003e=0.2.2-rc.1 \u003c0.3.0-0"
-                },
-    "dsh":  {
-                "bundle":  {
-                               "patch":  "./cordis.patch.yml"
-                           },
-                "client":  {
-                               "platform":  "web",
-                               "immediately":  true,
-                               "inject":  [
-                                              "@deepseek-ai/dsh-client-ui-conversation"
-                                          ]
-                           }
-            }
+{
+  "name": "dsh-billing-bar",
+  "version": "0.1.3",
+  "description": "Peak/off-peak billing strip and account balance above the DSH composer, with today, 7-day and 30-day spend per model.",
+  "license": "MIT",
+  "author": "Daaaaxianer",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "billing",
+    "usage",
+    "balance",
+    "cost",
+    "peak",
+    "off-peak"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Daaaaxianer/dsh-billing-bar.git"
+  },
+  "homepage": "https://github.com/Daaaaxianer/dsh-billing-bar#readme",
+  "bugs": {
+    "url": "https://github.com/Daaaaxianer/dsh-billing-bar/issues"
+  },
+  "engines": {
+    "dsh": ">=0.2.0-rc.1 <0.2.2 || >=0.2.2-rc.1 <0.3.0-0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  }
 }
