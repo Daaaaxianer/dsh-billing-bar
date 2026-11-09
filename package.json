@@ -1,6 +1,6 @@
 ﻿{
     "name":  "dsh-billing-bar",
-    "version":  "0.1.1",
+    "version":  "0.1.2",
     "description":  "Peak/off-peak billing strip and account balance above the DSH composer, with today, 7-day and 30-day spend per model.",
     "license":  "MIT",
     "author":  "Daaaaxianer",
@@ -9,7 +9,8 @@
                     ".":  "./index.js",
                     "./client":  "./client.js",
                     "./locale/*.json":  "./locale/*.json",
-                    "./icon":  "./icon.svg"
+                    "./icon":  "./icon.svg",
+                    "./package.json":  "./package.json"
                 },
     "files":  [
                   "index.js",
